@@ -1,4 +1,28 @@
 package com.hasanjahidul.docManagement.entity;
 
-public class User {
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.Where;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@DynamicUpdate
+@DynamicInsert
+@Entity
+@ToString
+@Table(name = "users")
+@Where(clause = "is_deleted = false OR is_deleted is null")
+public class User extends BaseEntity{
+    private String name;
+    private String userName;
+    private String password;
+    private String email;
+
 }
