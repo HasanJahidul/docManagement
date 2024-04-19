@@ -1,5 +1,6 @@
 package com.hasanjahidul.docManagement.repository;
 
+
 import com.hasanjahidul.docManagement.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 

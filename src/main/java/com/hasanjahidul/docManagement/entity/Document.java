@@ -7,7 +7,6 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.annotations.Where;
 
 import java.util.List;
 
@@ -18,15 +17,11 @@ import java.util.List;
 @DynamicInsert
 @Entity
 @ToString
-@Table(name = "doc_users")
-public class User extends BaseEntity{
+@Table(name = "documents")
+public class Document extends BaseEntity{
     private String name;
-    private String userName;
-    private String password;
-    private String email;
-
-    @OneToMany(mappedBy = "users", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private String content;
+    @OneToMany(mappedBy = "documents", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @OrderBy("id ASC")
     private List<AccessControl> accessControls;
-
 }

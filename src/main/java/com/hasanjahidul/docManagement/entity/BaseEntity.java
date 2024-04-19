@@ -1,5 +1,6 @@
 package com.hasanjahidul.docManagement.entity;
 
+import com.hasanjahidul.docManagement.utils.DateConversionUtil;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -34,4 +35,14 @@ public abstract class BaseEntity implements Serializable {
 
     @Column(name = "is_deleted")
     private Boolean isDeleted;
+
+    @PrePersist
+    public void prePersist() {
+        this.updatedBy = this.createdBy;
+        this.updatedAt=currentISOTime();
+        this.createdAt=currentISOTime();
+    }
+    private String currentISOTime() {
+        return DateConversionUtil.currentISO8601UTC();
+    }
 }

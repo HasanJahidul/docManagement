@@ -10,17 +10,18 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
-@Validated
 public class AuthController {
     @Autowired
     private AuthService authService;
 
     @PostMapping("/sign-up")
     public ResponseEntity<Object> signUp(@Valid @RequestBody UserDTO.Request dto){
+        System.out.println(dto);
         return this.authService.signUp(dto);
     }
     @PostMapping("/login")
-    public void login(){
+    public ResponseEntity<Object> login(@Valid @RequestBody UserDTO.LoginRequest dto){
+        return this.authService.login(dto);
 
     }
     @GetMapping("/logout")

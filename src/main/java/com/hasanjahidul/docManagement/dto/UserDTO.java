@@ -10,11 +10,11 @@ public class UserDTO {
     @Data
     public static class Request {
         @NotBlank(message = "Username is required")
-//        @UniqueUserName
+        @UniqueUserName
         String username;
         @NotBlank(message = "Password is required")
         String password;
-//        @UniqueUserEmail
+        @UniqueUserEmail
         @Email
         String email;
         @NotBlank(message = "Name is required")
@@ -27,5 +27,12 @@ public class UserDTO {
         private String name;
         private String username;
         private String email;
+    }
+    @Data
+    public static class LoginRequest {
+        @NotBlank(message = "Username is required")
+        String username;
+        @NotBlank(message = "Password is required")
+        String password;
     }
 }
