@@ -38,4 +38,24 @@ public class DocumentMapper {
 
         return document;
     }
+    public static Document toEntity(DocumentDTO.Update dto, Document document) {
+        if(dto.getTitle() != null) {
+            document.setTitle(dto.getTitle());
+        }
+        if(dto.getContent() != null) {
+            document.setContent(dto.getContent());
+        }
+        return document;
+    }
+
+    public static List<DocumentDTO.DocumentResponse> toDTOList(List<Document> entity) {
+        return entity.stream().map(DocumentMapper::toDTO).toList();
+    }
+    public static DocumentDTO.DocumentResponse toDTO(Document entity) {
+        DocumentDTO.DocumentResponse dto = new DocumentDTO.DocumentResponse();
+        dto.setDocumentId(entity.getId());
+        dto.setTitle(entity.getTitle());
+        dto.setContent(entity.getContent());
+        return dto;
+    }
 }

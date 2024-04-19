@@ -8,4 +8,16 @@ public class DocumentDTO {
         private String title;
         private String content;
     }
+    @Data
+    public static class Update {
+        private Long documentId;
+        private String title;
+        private String content;
+    }
+    @Data
+    public static class DocumentResponse {
+        private Long documentId;
+        private String title;
+        private String content;
+    }
 }

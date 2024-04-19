@@ -7,6 +7,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.Where;
 
 import java.util.List;
 
@@ -18,6 +19,7 @@ import java.util.List;
 @Entity
 @ToString
 @Table(name = "documents")
+@Where(clause = "is_deleted = false OR is_deleted is null")
 public class Document extends BaseEntity{
     private String title;
     @Column(columnDefinition = "TEXT")

@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.Where;
 
 @Getter
 @Setter
@@ -14,6 +15,7 @@ import org.hibernate.annotations.DynamicUpdate;
 @Entity
 @ToString
 @Table(name = "access_control")
+@Where(clause = "is_deleted = false OR is_deleted is null")
 public class AccessControl extends BaseEntity{
     private AccessPermission permission;
 

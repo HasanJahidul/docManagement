@@ -19,6 +19,7 @@ import java.util.List;
 @Entity
 @ToString
 @Table(name = "doc_users")
+@Where(clause = "is_deleted = false OR is_deleted is null")
 public class User extends BaseEntity{
     private String name;
     private String userName;
