@@ -13,4 +13,6 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
     Document findByIdAndAccessControls_PermissionAndAccessControls_User_Id(Long id, AccessPermission permission, Long userId);
 
     List<Document> findByAccessControls_PermissionInOrCreatedBy(Collection<AccessPermission> permissions, Long createdBy);
+
+    Document findByIdOrderByIdAscAccessControls_PermissionAsc(Long id);
 }
