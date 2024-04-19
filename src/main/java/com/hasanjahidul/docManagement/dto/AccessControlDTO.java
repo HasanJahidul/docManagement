@@ -9,13 +9,13 @@ public class AccessControlDTO {
     @Data
     public static class Request{
         private Long documentId;
-        private List<PermissionsByUser> permissions;
+        private List<PermissionsByUser> permissionsByUsers;
     }
     @Data
     public static class Response{
         private Long documentId;
         private String title;
-        private List<PermissionsByUser> permissions;
+        private List<PermissionsByUser> permissionsByUsers;
     }
     @Data
     public static class PermissionsByUser{

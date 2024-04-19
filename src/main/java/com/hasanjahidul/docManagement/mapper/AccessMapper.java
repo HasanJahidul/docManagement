@@ -28,7 +28,7 @@ public class AccessMapper {
                     return permissionsByUser;
                 })
                 .collect(Collectors.toList());
-        response.setPermissions(permissionsByUsers);
+        response.setPermissionsByUsers(permissionsByUsers);
         return response;
     }
 }

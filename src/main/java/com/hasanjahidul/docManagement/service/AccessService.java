@@ -41,68 +41,81 @@ public class AccessService {
 
     }
 
-    public AccessControl addAccessForDocument(Long documentId, AccessControl access) {
-        Optional<Document> documentOptional = documentRepository.findById(documentId);
-        if (documentOptional.isPresent()) {
-            Document document = documentOptional.get();
-            access.setDocument(document);
-            return accessRepository.save(access);
+    @Transactional
+    public ResponseEntity<Object> addOrUpdatePermissions(AccessControlDTO.Request request) {
+        try{
+            // Get the document
+            Document document = documentRepository.findById(request.getDocumentId()).orElse(null);
+            if (document == null) {
+                return ResponseEntity.ok(new NotFoundModel("Document not found with id: " + request.getDocumentId(), 404));
+            }
+
+            // Group permissions by user
+            Map<Long, List<AccessPermission>> permissionsByUserId = request.getPermissionsByUsers().stream()
+                    .collect(Collectors.toMap(
+                            AccessControlDTO.PermissionsByUser::getUserId,
+                            AccessControlDTO.PermissionsByUser::getPermissions
+                    ));
+
+            // Update or add permissions for each user
+            for (Map.Entry<Long, List<AccessPermission>> entry : permissionsByUserId.entrySet()) {
+                Long userId = entry.getKey();
+                User user = userRepository.findById(userId).orElse(null);
+                if (user == null) {
+                    return ResponseEntity.ok(new NotFoundModel("User not found with id: " + userId, 404));
+                }
+                List<AccessPermission> permissions = entry.getValue();
+
+                for (AccessPermission permission : permissions) {
+                    // Check if the permission already exists for the user
+                    boolean permissionExists = document.getAccessControls().stream()
+                            .anyMatch(accessControl -> accessControl.getUser().equals(user) && accessControl.getPermission() == permission);
+
+                    if (!permissionExists) {
+                        // Create a new access control entry if permission doesn't exist
+                        AccessControl accessControl = new AccessControl();
+                        accessControl.setDocument(document);
+                        accessControl.setUser(user);
+                        accessControl.setPermission(permission);
+                        document.getAccessControls().add(accessControl);
+                    }
+                }
+            }
+
+            // Save the updated document
+            documentRepository.save(document);
+            return ResponseEntity.ok(new APIResponseModel<>(200, "Permissions updated successfully"));
+
+        }catch (Exception e) {
+            return ResponseEntity.ok(new APIResponseModel<>(500, "Internal server error"));
         }
-        return null;
+
     }
 
     @Transactional
-    public ResponseEntity<Object> addOrUpdatePermissions(AccessControlDTO.Request request) {
-        // Get the document
-        Document document = documentRepository.findById(request.getDocumentId())
-                .orElseThrow(() -> new IllegalArgumentException("Document not found with id: " + request.getDocumentId()));
+    public ResponseEntity<Object> deletePermissions(AccessControlDTO.Request dto) {
+        try{
+            // Get the document
+            // Get the document
+            Document document = documentRepository.findById(dto.getDocumentId())
+                    .orElseThrow(() -> new IllegalArgumentException("Document not found with id: " + dto.getDocumentId()));
 
-        // Group permissions by user
-        Map<Long, List<AccessPermission>> permissionsByUserId = request.getPermissions().stream()
-                .collect(Collectors.toMap(
-                        AccessControlDTO.PermissionsByUser::getUserId,
-                        AccessControlDTO.PermissionsByUser::getPermissions
-                ));
-
-        // Update or add permissions for each user
-        for (Map.Entry<Long, List<AccessPermission>> entry : permissionsByUserId.entrySet()) {
-            Long userId = entry.getKey();
-            User user = userRepository.findById(userId)
-                    .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + userId));
-            List<AccessPermission> permissions = entry.getValue();
-
-            for (AccessPermission permission : permissions) {
-                // Check if the permission already exists for the user
-                boolean permissionExists = document.getAccessControls().stream()
-                        .anyMatch(accessControl -> accessControl.getUser().equals(user) && accessControl.getPermission() == permission);
-
-                if (!permissionExists) {
-                    // Create a new access control entry if permission doesn't exist
-                    AccessControl accessControl = new AccessControl();
-                    accessControl.setDocument(document);
-                    accessControl.setUser(user);
-                    accessControl.setPermission(permission);
-                    document.getAccessControls().add(accessControl);
+            // Iterate over access controls and mark them as inactive if found in the DTO request
+            for (AccessControl accessControl : document.getAccessControls()) {
+                for (AccessControlDTO.PermissionsByUser permissionsByUser : dto.getPermissionsByUsers()) {
+                    if (accessControl.getDocument().getId().equals(dto.getDocumentId()) &&
+                            accessControl.getUser().getId().equals(permissionsByUser.getUserId()) &&
+                            permissionsByUser.getPermissions().contains(accessControl.getPermission())) {
+                        accessControl.setIsDeleted(true); // Mark as inactive
+                    }
                 }
             }
-        }
+            // Save the updated document
+            documentRepository.save(document);
+            return ResponseEntity.ok(new APIResponseModel<>(200, "Permissions deleted successfully"));
 
-        // Save the updated document
-        documentRepository.save(document);
-        return ResponseEntity.ok(new APIResponseModel<>(200, "Permissions updated successfully"));
-    }
-
-    public void deleteAccessForDocument(Long documentId, Long accessId) {
-        Optional<Document> documentOptional = documentRepository.findById(documentId);
-        if (documentOptional.isPresent()) {
-            Document document = documentOptional.get();
-            Optional<AccessControl> accessOptional = accessRepository.findById(accessId);
-            if (accessOptional.isPresent()) {
-                AccessControl access = accessOptional.get();
-                if (access.getDocument().equals(document)) {
-                    accessRepository.delete(access);
-                }
-            }
+        }catch (Exception e) {
+            return ResponseEntity.ok(new APIResponseModel<>(500, "Internal server error->"+e.getMessage()));
         }
     }
 }

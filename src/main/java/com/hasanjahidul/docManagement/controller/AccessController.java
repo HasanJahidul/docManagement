@@ -20,5 +20,9 @@ public class AccessController {
     public ResponseEntity<Object> updateAccess(@RequestBody @Valid AccessControlDTO.Request dto) {
         return accessService.addOrUpdatePermissions(dto);
     }
+    @DeleteMapping("/delete-access")
+    public ResponseEntity<Object> deleteAccess(@RequestBody @Valid AccessControlDTO.Request dto) {
+        return accessService.deletePermissions(dto);
+    }
 
 }
