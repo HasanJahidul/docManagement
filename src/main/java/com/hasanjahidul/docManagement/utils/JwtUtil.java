@@ -5,6 +5,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -23,22 +24,28 @@ public class JwtUtil {
 
     @Value("${jwt.expiration}")
     private long expiration;
+    private Key key;
 
     public String generateToken(User user) {
         Map<String, Object> claims = new HashMap<>();
         return createToken(claims, user.getUserName());
     }
+    @PostConstruct
+    public void init() {
+        this.key = Keys.hmacShaKeyFor(secret.getBytes());
+    }
 
-    private static final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
 
     private String createToken(Map<String, Object> claims, String subject) {
-        return Jwts.builder()
+        String token = Jwts.builder()
                 .setClaims(claims)
                 .setSubject(subject)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(key)
                 .compact();
+
+        return "Bearer " + token;
     }
 
     public boolean validateToken(String token, User user) {

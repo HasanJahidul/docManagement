@@ -4,6 +4,8 @@ package com.hasanjahidul.docManagement.service;
 import com.hasanjahidul.docManagement.dto.UserDTO;
 import com.hasanjahidul.docManagement.entity.User;
 import com.hasanjahidul.docManagement.mapper.UserMapper;
+import com.hasanjahidul.docManagement.model.APIResponseModel;
+import com.hasanjahidul.docManagement.model.InvalidRequestModel;
 import com.hasanjahidul.docManagement.repository.UserRepository;
 import com.hasanjahidul.docManagement.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,21 +34,21 @@ public class AuthService {
         User entity = UserMapper.toEntity(dto);
         entity.setPassword(passwordEncoder.encode(dto.getPassword()));
         userRepository.save(entity);
-        return ResponseEntity.ok("User created");
+        return ResponseEntity.ok(new APIResponseModel<>(200,"User created successfully"));
     }
 
-    public ResponseEntity<Object> login(UserDTO.LoginRequest dto) {
+    public Object login(UserDTO.LoginRequest dto) {
         try {
             User user = userRepository.findByUserName(dto.getUsername());
             if (user == null || !passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new APIResponseModel<>(401,"Invalid username or password"));
             }
 
             // Authentication successful, generate JWT token and return it
             String jwt = jwtUtil.generateToken(user);
-            return ResponseEntity.ok(jwt);
+            return ResponseEntity.ok(new APIResponseModel<>(jwt));
         } catch (BadCredentialsException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
+            return ResponseEntity.ok(new InvalidRequestModel<>("Invalid username or password"));
         }
     }
 

@@ -1,5 +1,8 @@
 package com.hasanjahidul.docManagement.config;
 
+import com.hasanjahidul.docManagement.repository.UserRepository;
+import com.hasanjahidul.docManagement.service.UserService;
+import com.hasanjahidul.docManagement.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheConfig;
@@ -34,7 +37,14 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+    @Autowired
+    private JwtUtil jwtUtil;
 
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private UserService userService;
 
 
 
@@ -43,12 +53,8 @@ public class SecurityConfig {
 
         http
                 .cors(Customizer.withDefaults()) // Enable CORS configuration
-                .csrf(AbstractHttpConfigurer::disable) // Disable CSRF protection as you're relying on JWT
-                .authorizeRequests()
-                .requestMatchers(req -> true)
-                .permitAll()
-                .and()
-                .addFilterBefore(new PermissionFilter(), UsernamePasswordAuthenticationFilter.class); // Add the permission filter and skip the UsernamePasswordAuthenticationFilter
+                .csrf(AbstractHttpConfigurer::disable)
+                .addFilterBefore(new PermissionFilter(jwtUtil,userRepository,userService), UsernamePasswordAuthenticationFilter.class); // Add the permission filter and skip the UsernamePasswordAuthenticationFilter
 
         return http.build();
     }

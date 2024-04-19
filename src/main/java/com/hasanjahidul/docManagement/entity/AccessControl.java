@@ -20,14 +20,14 @@ public class AccessControl extends BaseEntity{
     @JsonIgnore
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
-    @JoinColumn(name = "access_control_id")
-    private Document documents;
+    @JoinColumn(name = "document_id")
+    private Document document;
 
     @JsonIgnore
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "user_id")
-    private User users;
+    private User user;
 
 
 }

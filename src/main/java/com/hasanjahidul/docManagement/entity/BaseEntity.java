@@ -1,5 +1,6 @@
 package com.hasanjahidul.docManagement.entity;
 
+import com.hasanjahidul.docManagement.config.UserContextHolder;
 import com.hasanjahidul.docManagement.utils.DateConversionUtil;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -38,9 +39,22 @@ public abstract class BaseEntity implements Serializable {
 
     @PrePersist
     public void prePersist() {
+        this.createdBy = currentUser();
         this.updatedBy = this.createdBy;
         this.updatedAt=currentISOTime();
         this.createdAt=currentISOTime();
+    }
+    @PreUpdate
+    public void preUpdate() {
+        this.updatedBy = currentUser();
+        this.updatedAt= currentISOTime();
+    }
+    private Long currentUser() {
+//       get user id from user context holder
+        return UserContextHolder.getUserDetails() != null
+                ? UserContextHolder.getUserDetails().getUserId()
+                : 1L;
+
     }
     private String currentISOTime() {
         return DateConversionUtil.currentISO8601UTC();

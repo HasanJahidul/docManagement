@@ -2,6 +2,7 @@ package com.hasanjahidul.docManagement.config;
 
 import com.hasanjahidul.docManagement.entity.User;
 import com.hasanjahidul.docManagement.repository.UserRepository;
+import com.hasanjahidul.docManagement.service.UserService;
 import com.hasanjahidul.docManagement.utils.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -43,26 +44,32 @@ public class PermissionFilter extends OncePerRequestFilter {
     private Environment environment;
 
     @Autowired
-    private JwtUtil jwtUtil;
+    private final JwtUtil jwtUtil;
+
+    private final UserRepository userRepository;
+
+
+    private final UserService userService;
 
     @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    public PermissionFilter() {
-
+    public PermissionFilter(JwtUtil jwtUtil, UserRepository userRepository, UserService userService) {
+        this.jwtUtil = jwtUtil;
+        this.userRepository = userRepository;
+        this.userService = userService;
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         String requestURI = request.getRequestURI();
+        System.out.println("Request URI: " + requestURI);
         if (requestURI.contains("/api/auth")) {
             filterChain.doFilter(request, response);
             return;
         }
         String token = request.getHeader("Authorization");
         if (token == null || !token.startsWith("Bearer ")) {
+            System.out.println("Authorization token is missing");
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Authorization token is missing");
             return;
         }
@@ -73,7 +80,9 @@ public class PermissionFilter extends OncePerRequestFilter {
         try {
             jwt = token.substring(7);
             username = jwtUtil.extractUsername(jwt);
+            System.out.println("Username: " + username);
         } catch (Exception e) {
+            System.out.println("Invalid token-> "+e.getMessage());
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid token");
             return;
         }
@@ -92,6 +101,7 @@ public class PermissionFilter extends OncePerRequestFilter {
                         userDetails, null);
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+                userService.setUserInfo(userDetails);
             } else {
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid token");
                 return;

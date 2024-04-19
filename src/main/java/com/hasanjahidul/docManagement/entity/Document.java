@@ -19,9 +19,10 @@ import java.util.List;
 @ToString
 @Table(name = "documents")
 public class Document extends BaseEntity{
-    private String name;
+    private String title;
+    @Column(columnDefinition = "TEXT")
     private String content;
-    @OneToMany(mappedBy = "documents", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "document", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @OrderBy("id ASC")
     private List<AccessControl> accessControls;
 }

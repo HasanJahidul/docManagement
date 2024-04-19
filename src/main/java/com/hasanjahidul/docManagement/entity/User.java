@@ -25,7 +25,7 @@ public class User extends BaseEntity{
     private String password;
     private String email;
 
-    @OneToMany(mappedBy = "users", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @OrderBy("id ASC")
     private List<AccessControl> accessControls;
 
